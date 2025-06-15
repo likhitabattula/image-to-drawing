@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+   <title>Image to Drawing Converter</title>
+   <link rel="icon" type="image/png" href="android-chrome-512x512.png">
+
+  <link rel="stylesheet" href="style.css">
+  </head>
+  
+<body>
+  <img src="logo.png" alt="Sketchify Logo" class="logo">
+
+  <h1>Sketchify – Convert Image to Art</h1>
+
+  <!-- Upload Image -->
+  <input type="file" id="imageInput" accept="image/*"><br>
+
+  <!-- Select Effect -->
+  <label for="effect">Choose Effect:</label>
+  <select id="effect">
+    <option value="sketch">Pencil Sketch</option>
+    <option value="grayscale">Grayscale</option>
+    <option value="blur">Blur</option>
+    <option value="cartoon">Cartoon</option>
+  </select><br>
+
+  <!-- Convert Button -->
+  <button onclick="convertImage()">Convert</button><br>
+
+  <!-- Result Image -->
+  <img id="result" alt="Converted Image"><br>
+
+  <!-- Download Link -->
+  <a id="downloadLink" download="converted.png" style="display:none;">
+    <button>Download</button>
+  </a>
+
+  <script>
+    function convertImage() {
+      const input = document.getElementById('imageInput');
+      const file = input.files[0];
+      const effect = document.getElementById('effect').value;
+
+      if (!file) {
+        alert('Please select an image.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('effect', effect);
+
+      fetch('http://127.0.0.1:5000/convert', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Conversion failed");
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const imageURL = URL.createObjectURL(blob);
+        document.getElementById('result').src = imageURL;
+
+        // Enable download button
+        const downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = imageURL;
+        downloadLink.style.display = 'inline-block';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to convert image');
+      });
+    }
+  </script>
+</body>
+</html>
+
