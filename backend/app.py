@@ -8,61 +8,48 @@ import io
 app = Flask(__name__)
 CORS(app)
 
-def apply_effect(image, effect):
-    if effect == "sketch":
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        inv = 255 - gray
-        blur = cv2.GaussianBlur(inv, (21, 21), 0)
-        sketch = cv2.divide(gray, 255 - blur, scale=256)
-        return cv2.cvtColor(sketch, cv2.COLOR_GRAY2BGR)
-    
-    elif effect == "grayscale":
-        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    elif effect == "blur":
-        return cv2.GaussianBlur(image, (15, 15), 0)
-    
-    elif effect == "cartoon":
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        gray = cv2.medianBlur(gray, 5)
-        edges = cv2.adaptiveThreshold(gray, 255,
-                                      cv2.ADAPTIVE_THRESH_MEAN_C,
-                                      cv2.THRESH_BINARY, 9, 9)
-        color = cv2.bilateralFilter(image, 9, 300, 300)
-        cartoon = cv2.bitwise_and(color, color, mask=edges)
-        return cartoon
-    
-    else:
-        return image
+def convert_to_sketch(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    inv = 255 - gray
+    blur = cv2.GaussianBlur(inv, (21, 21), 0)
+    inv_blur = 255 - blur
+    sketch = cv2.divide(gray, inv_blur, scale=256.0)
+    return sketch
+
+def convert_to_cartoon(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 5)
+    edges = cv2.adaptiveThreshold(gray, 255,
+                                  cv2.ADAPTIVE_THRESH_MEAN_C,
+                                  cv2.THRESH_BINARY, 9, 9)
+    color = cv2.bilateralFilter(image, 9, 300, 300)
+    cartoon = cv2.bitwise_and(color, color, mask=edges)
+    return cartoon
 
 @app.route('/convert', methods=['POST'])
-def convert():
-    try:
-        file = request.files['image']
-        effect = request.form.get('effect')
+def convert_image():
+    file = request.files['image']
+    effect = request.form.get('effect')
 
-        in_memory_file = io.BytesIO()
-        file.save(in_memory_file)
-        data = np.frombuffer(in_memory_file.getvalue(), dtype=np.uint8)
-        image = cv2.imdecode(data, cv2.IMREAD_COLOR)
+    image = Image.open(file.stream)
+    image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-        processed = apply_effect(image, effect)
+    if effect == 'sketch':
+        output = convert_to_sketch(image)
+    elif effect == 'grayscale':
+        output = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    elif effect == 'blur':
+        output = cv2.GaussianBlur(image, (15, 15), 0)
+    elif effect == 'cartoon':
+        output = convert_to_cartoon(image)
+    else:
+        return 'Invalid effect', 400
 
-        # Convert result to sendable PNG
-        if len(processed.shape) == 2:  # grayscale
-            processed = cv2.cvtColor(processed, cv2.COLOR_GRAY2RGB)
-        else:
-            processed = cv2.cvtColor(processed, cv2.COLOR_BGR2RGB)
+    _, buffer = cv2.imencode('.png', output)
+    io_buf = io.BytesIO(buffer)
 
-        result = Image.fromarray(processed)
-        output = io.BytesIO()
-        result.save(output, format='PNG')
-        output.seek(0)
-        return send_file(output, mimetype='image/png')
-    except Exception as e:
-        print("Error:", e)
-        return "Failed to convert image", 500
+    return send_file(io_buf, mimetype='image/png')
 
+# IMPORTANT: This line must use host='0.0.0.0'
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
-
+    app.run(debug=False, host='0.0.0.0', port=10000)
