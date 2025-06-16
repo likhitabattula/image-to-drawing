@@ -3,28 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
-  <title>Sketchify – Convert Image to Art</title>
-  <style>
-    body { text-align: center; font-family: sans-serif; padding: 20px; }
-    img { max-width: 80%; margin-top: 10px; }
-  </style>
-</head>
+   <title>Image to Drawing Converter</title>
+   <link rel="icon" type="image/png" href="android-chrome-512x512.png">
+
+  <link rel="stylesheet" href="style.css">
+  </head>
+  
 <body>
-  <h1>🎨 Sketchify – Convert Image to Art</h1>
+  <img src="logo.png" alt="Sketchify Logo" class="logo">
 
-  <input type="file" id="imageInput" accept="image/*"><br><br>
+  <h1>Sketchify – Convert Image to Art</h1>
 
+  <!-- Upload Image -->
+  <input type="file" id="imageInput" accept="image/*"><br>
+
+  <!-- Select Effect -->
   <label for="effect">Choose Effect:</label>
   <select id="effect">
     <option value="sketch">Pencil Sketch</option>
     <option value="grayscale">Grayscale</option>
     <option value="blur">Blur</option>
     <option value="cartoon">Cartoon</option>
-  </select><br><br>
+  </select><br>
 
-  <button onclick="convertImage()">Convert</button><br><br>
+  <!-- Convert Button -->
+  <button onclick="convertImage()">Convert</button><br>
 
+  <!-- Result Image -->
   <img id="result" alt="Converted Image"><br>
+
+  <!-- Download Link -->
   <a id="downloadLink" download="converted.png" style="display:none;">
     <button>Download</button>
   </a>
@@ -34,16 +42,16 @@
       const input = document.getElementById('imageInput');
       const file = input.files[0];
       const effect = document.getElementById('effect').value;
-
+  
       if (!file) {
         alert('Please select an image.');
         return;
       }
-
+  
       const formData = new FormData();
       formData.append('image', file);
       formData.append('effect', effect);
-
+  
       fetch('https://image-to-drawing-backend-6tqp.onrender.com/convert', {
         method: 'POST',
         body: formData
@@ -57,7 +65,8 @@
       .then(blob => {
         const imageURL = URL.createObjectURL(blob);
         document.getElementById('result').src = imageURL;
-
+  
+        // Enable download button
         const downloadLink = document.getElementById('downloadLink');
         downloadLink.href = imageURL;
         downloadLink.style.display = 'inline-block';
@@ -68,5 +77,7 @@
       });
     }
   </script>
+  
 </body>
 </html>
+
