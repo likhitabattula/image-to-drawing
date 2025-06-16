@@ -1,67 +1,58 @@
+/* General styles */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #dfe9f3, #ffffff);
+  font-family: Arial, sans-serif;
   text-align: center;
-  padding: 40px;
-  margin: 0;
+  padding: 20px;
 }
 
-h1 {
-  color: #333;
-  margin-bottom: 20px;
+.logo {
+  width: 150px;
+  max-width: 30%;
 }
 
+/* Make images responsive */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+}
+
+/* Input and select */
 input[type="file"],
 select,
 button {
-  display: block;
   margin: 10px auto;
-  padding: 10px 20px;
+  padding: 10px;
   font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 80%;
+  display: block;
+  width: 50%;
   max-width: 400px;
-  box-sizing: border-box;
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-#result {
-  margin-top: 30px;
-  max-width: 90%;
-  height: auto;
-  border-radius: 10px;
-  border: 2px solid #ccc;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-#downloadLink {
-  display: none;
-  margin-top: 20px;
-}
-
+/* Download button inside the anchor tag */
 #downloadLink button {
-  background-color: #2196F3;
+  margin-top: 10px;
+  width: 50%;
+  max-width: 400px;
 }
 
-#downloadLink button:hover {
-  background-color: #0b7dda;
-}
-.logo {
-  width: 400px;
-  height: 200px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(10,10,10,0.2);
+/* Media query for smaller screens */
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 22px;
+    padding: 0 10px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+
+  input[type="file"],
+  select,
+  button,
+  #downloadLink button {
+    width: 90%;
+    font-size: 16px;
+  }
 }
