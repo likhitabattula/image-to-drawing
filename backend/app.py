@@ -8,6 +8,10 @@ import io
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/')
+def home():
+    return "Backend is running"
+
 def apply_effect(image, effect):
     if effect == 'sketch':
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -48,7 +52,7 @@ def convert():
     image = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
 
     output = apply_effect(image, effect)
-    if len(output.shape) == 2:  # grayscale
+    if len(output.shape) == 2:
         output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
 
     _, buffer = cv2.imencode('.png', output)
@@ -58,3 +62,4 @@ def convert():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
